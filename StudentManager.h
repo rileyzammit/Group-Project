@@ -1,3 +1,4 @@
+#pragma once
 #ifndef STUDYMANAGER_H
 #define STUDYMANAGER_H
 

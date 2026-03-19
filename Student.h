@@ -1,3 +1,4 @@
+#pragma once
 #ifndef STUDENT_H
 #define STUDENT_H
 #include "Course.h"
@@ -23,6 +24,8 @@ public:
     string getStudentName(){}
     int getStudentID(){}
     void addCourse(Course courseArg);
+     int getCourseCount();
+    Course* getCourses();
     ~Student(){}
 };
 
