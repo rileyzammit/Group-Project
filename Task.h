@@ -34,7 +34,7 @@ public:
 		status = ss;
 	}
 
-	void setTitle(string title) { title = t; }
+	void setTitle(string t) { title = t; }
 	void setSubject(string subject);
 	void setStatus(string status);
 

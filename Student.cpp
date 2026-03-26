@@ -1,35 +1,45 @@
-#include <string>
 #include "Student.h"
 
 using namespace std;
 
-Student::Student(){
-studentName="Unknown";
-        studentCount++;
-        studentID=000000000+studentCount;
-        courseCount=0;
-}
-Student::Student(string nameArg, int IDArg){
-    studentName=nameArg;
-    studentID=IDArg;
+Student::Student() : studentName("Unknown"), studentID(0), courseCount(0) {}
 
-}
-void Student::setStudentName(string nameArg){
-     studentName=nameArg;
-}
-void Student::setStudentID(int IDArg){
-     studentID=IDArg;
+Student::Student(const string& nameArg, int idArg)
+    : studentName(nameArg), studentID(idArg), courseCount(0) {}
+
+void Student::setStudentName(const string& nameArg) {
+    studentName = nameArg;
 }
 
-string Student::getStudentName(){
+void Student::setStudentID(int idArg) {
+    studentID = idArg;
+}
+
+const string& Student::getStudentName() const {
     return studentName;
 }
-int Student::getStudentID(){
+
+int Student::getStudentID() const {
     return studentID;
 }
-void Student::addCourse(Course c){
-    if (courseCount<5){
-        courses[courseCount++]=c;
+
+bool Student::addCourse(const Course& courseArg) {
+    if (courseCount >= MAX_COURSES) {
+        return false;
     }
+
+    courses[courseCount++] = courseArg;
+    return true;
 }
-int Student::studentCount=0;
+
+int Student::getCourseCount() const {
+    return courseCount;
+}
+
+Course* Student::getCourses() {
+    return courses;
+}
+
+const Course* Student::getCourses() const {
+    return courses;
+}

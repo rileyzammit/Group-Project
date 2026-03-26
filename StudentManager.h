@@ -1,30 +1,34 @@
 #pragma once
-#ifndef STUDYMANAGER_H
-#define STUDYMANAGER_H
 
-#include "Student.h"
-#include "Course.h"
-#include "Task.h"
 #include "AssignmentTask.h"
+#include "Course.h"
 #include "ExamTask.h"
 #include "ProgressTracker.h"
+#include "Student.h"
 
-class StudyManager {
+using namespace std;
+
+class StudentManager {
 private:
-    Student student;
+    static const int MAX_STUDENTS = 10;
+
+    Student students[MAX_STUDENTS];
+    int studentCount;
+
+    int promptStudentIndex() const;
+    static int promptInt(const string& prompt);
+    static Date promptDate();
 
 public:
-    StudyManager();
+    StudentManager();
 
-    void setupStudent();
-    void addCourse();
-    void addTask();
-    void displayAllCoursesAndTasks() const;
+    void addStudent();
+    void addCourseToStudent();
+    void addTaskToCourse();
+    void displayAllStudents() const;
     void markTaskComplete();
+    void showProgressForStudent() const;
     void saveToFile() const;
     void loadFromFile();
-    void showProgress();
     void menu();
 };
-
-#endif

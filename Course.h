@@ -1,17 +1,39 @@
 #pragma once
-#ifndef COURSE_H
-#define COURSE_H
+
+#include "Task.h"
+
 #include <string>
-class Course{
-private: 
-string courseName;
-string courseCode;
+
+using namespace std;
+
+class Course {
 public:
-Course();
-Course(string nameArg, string codeArg);
-const string getCourseName() ;
-const string getCourseCode() ;
-void setCourseName(string nameArg);
-void setCourseCode(string codeArg);
+    static const int MAX_TASKS = 10;
+
+private:
+    string courseName;
+    string courseCode;
+    Task* tasks[MAX_TASKS];
+    int taskCount;
+
+    void clearTasks();
+    void copyFrom(const Course& other);
+
+public:
+    Course();
+    Course(const string& nameArg, const string& codeArg);
+    Course(const Course& other);
+    Course& operator=(const Course& other);
+    ~Course();
+
+    const string& getCourseName() const;
+    const string& getCourseCode() const;
+    void setCourseName(const string& nameArg);
+    void setCourseCode(const string& codeArg);
+
+    bool addTask(const Task& taskArg);
+    int getTaskCount() const;
+    Task** getTasks();
+    Task* const* getTasks() const;
+    void displayTasks() const;
 };
-#endif
