@@ -4,6 +4,7 @@
 
 using namespace std;
 
+// A task that is meant to be turned in somehow.
 class AssignmentTask : public Task {
 private:
     string submissionType;
@@ -11,7 +12,9 @@ private:
 public:
     AssignmentTask();
     AssignmentTask(const string& taskTitle, const Date& dueDate,
-                   const string& submission, bool isCompleted = false);
+                   const string& submission, bool isCompleted = false,
+                   double taskWeight = 0.0, double taskGrade = 0.0,
+                   bool gradeRecorded = false);
 
     void setSubmissionType(const string& submission);
     const string& getSubmissionType() const;

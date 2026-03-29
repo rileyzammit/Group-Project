@@ -2,8 +2,10 @@
 
 using namespace std;
 
+// Default student used when an empty object is created first.
 Student::Student() : studentName("Unknown"), studentID(0), courseCount(0) {}
 
+// Builds a student with a real name and ID.
 Student::Student(const string& nameArg, int idArg)
     : studentName(nameArg), studentID(idArg), courseCount(0) {}
 
@@ -24,10 +26,12 @@ int Student::getStudentID() const {
 }
 
 bool Student::addCourse(const Course& courseArg) {
+    // Stop adding if the fixed-size course list is already full.
     if (courseCount >= MAX_COURSES) {
         return false;
     }
 
+    // Store the course in the next open slot.
     courses[courseCount++] = courseArg;
     return true;
 }

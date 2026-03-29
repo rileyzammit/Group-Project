@@ -1,313 +1,383 @@
-#include "StudyManager.h"
-#include <iostream>
+#include "StudentManager.h"
+
 #include <fstream>
+#include <iostream>
+#include <limits>
 
-using namespace std; 
-class StudyManager {
-private:
-    Student student;
+using namespace std;
 
-public:
-    StudyManager() {}
+StudentManager::StudentManager() : studentCount(0) {}
 
-    void setupStudent() {
-        string name, id;
-        cout << "Enter student name: ";
-        getline(cin, name);
-        cout << "Enter student ID: ";
-        getline(cin, id);
+int StudentManager::promptInt(const string& prompt) {
+    int value;
 
-        student = Student(name, id);
+    while (true) {
+        cout << prompt;
+        if (cin >> value) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return value;
+        }
+
+        cout << "Please enter a valid number.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+}
+
+Date StudentManager::promptDate() {
+    Date deadline{};
+    deadline.day = promptInt("Enter deadline day: ");
+    deadline.month = promptInt("Enter deadline month: ");
+    deadline.year = promptInt("Enter deadline year: ");
+    return deadline;
+}
+
+int StudentManager::promptStudentIndex() const {
+    if (studentCount == 0) {
+        cout << "No students available.\n";
+        return -1;
     }
 
-    void addCourse() {
-        string courseName;
-        cout << "Enter course name: ";
-        getline(cin, courseName);
+    cout << "\nSelect a student:\n";
+    for (int i = 0; i < studentCount; ++i) {
+        cout << i + 1 << ". " << students[i].getStudentName()
+             << " (ID: " << students[i].getStudentID() << ")\n";
+    }
 
-        Course course(courseName);
-        student.addCourse(course);
+    const int choice = promptInt("Enter your choice: ");
+    if (choice < 1 || choice > studentCount) {
+        cout << "Invalid student selection.\n";
+        return -1;
+    }
 
+    return choice - 1;
+}
+
+void StudentManager::addStudent() {
+    if (studentCount >= MAX_STUDENTS) {
+        cout << "Student limit reached.\n";
+        return;
+    }
+
+    string name;
+    cout << "Enter student name: ";
+    getline(cin, name);
+
+    const int id = promptInt("Enter student ID: ");
+    students[studentCount++] = Student(name, id);
+    cout << "Student added successfully.\n";
+}
+
+void StudentManager::addCourseToStudent() {
+    const int studentIndex = promptStudentIndex();
+    if (studentIndex == -1) {
+        return;
+    }
+
+    string courseName;
+    string courseCode;
+
+    cout << "Enter course name: ";
+    getline(cin, courseName);
+    cout << "Enter course code: ";
+    getline(cin, courseCode);
+
+    if (students[studentIndex].addCourse(Course(courseName, courseCode))) {
         cout << "Course added successfully.\n";
+    } else {
+        cout << "This student already has the maximum of "
+             << Student::MAX_COURSES << " courses.\n";
+    }
+}
+
+void StudentManager::addTaskToCourse() {
+    const int studentIndex = promptStudentIndex();
+    if (studentIndex == -1) {
+        return;
     }
 
-    void addTask() {
-        vector<Course>& courses = student.getCourses();
-
-        if (courses.empty()) {
-            cout << "Please add a course first.\n";
-            return;
-        }
-
-        cout << "\nSelect a course:\n";
-        for (size_t i = 0; i < courses.size(); i++) {
-            cout << i + 1 << ". " << courses[i].getCourseName() << endl;
-        }
-
-        int courseChoice;
-        cin >> courseChoice;
-        cin.ignore();
-
-        if (courseChoice < 1 || courseChoice > (int)courses.size()) {
-            cout << "Invalid course selection.\n";
-            return;
-        }
-
-        string title;
-        Date deadline;
-        int typeChoice;
-
-        cout << "Enter task title: ";
-        getline(cin, title);
-
-        cout << "Enter deadline day: ";
-        cin >> deadline.day;
-        cout << "Enter deadline month: ";
-        cin >> deadline.month;
-        cout << "Enter deadline year: ";
-        cin >> deadline.year;
-
-        cout << "Task type:\n";
-        cout << "1. Assignment\n";
-        cout << "2. Exam\n";
-        cout << "Choose: ";
-        cin >> typeChoice;
-        cin.ignore();
-
-        if (typeChoice == 1) {
-            string submissionType;
-            cout << "Enter submission type (Online/In Person): ";
-            getline(cin, submissionType);
-
-            Task* task = new AssignmentTask(title, deadline, submissionType);
-            courses[courseChoice - 1].addTask(task);
-            cout << "Assignment added successfully.\n";
-        }
-        else if (typeChoice == 2) {
-            int studyHours;
-            cout << "Enter study hours required: ";
-            cin >> studyHours;
-            cin.ignore();
-
-            Task* task = new ExamTask(title, deadline, studyHours);
-            courses[courseChoice - 1].addTask(task);
-            cout << "Exam added successfully.\n";
-        }
-        else {
-            cout << "Invalid task type.\n";
-        }
+    Student& student = students[studentIndex];
+    if (student.getCourseCount() == 0) {
+        cout << "Please add a course first.\n";
+        return;
     }
 
-    void displayAllCoursesAndTasks() const {
-        const vector<Course>& courses = student.getCourses();
-
-        if (courses.empty()) {
-            cout << "No courses available.\n";
-            return;
-        }
-
-        for (size_t i = 0; i < courses.size(); i++) {
-            courses[i].displayTasks();
-        }
+    Course* courses = student.getCourses();
+    cout << "\nSelect a course:\n";
+    for (int i = 0; i < student.getCourseCount(); ++i) {
+        cout << i + 1 << ". " << courses[i].getCourseName()
+             << " (" << courses[i].getCourseCode() << ")\n";
     }
 
-    void markTaskComplete() {
-        vector<Course>& courses = student.getCourses();
-
-        if (courses.empty()) {
-            cout << "No courses available.\n";
-            return;
-        }
-
-        cout << "\nSelect a course:\n";
-        for (size_t i = 0; i < courses.size(); i++) {
-            cout << i + 1 << ". " << courses[i].getCourseName() << endl;
-        }
-
-        int courseChoice;
-        cin >> courseChoice;
-        cin.ignore();
-
-        if (courseChoice < 1 || courseChoice > (int)courses.size()) {
-            cout << "Invalid course selection.\n";
-            return;
-        }
-
-        vector<Task*>& tasks = courses[courseChoice - 1].getTasks();
-
-        if (tasks.empty()) {
-            cout << "No tasks in this course.\n";
-            return;
-        }
-
-        cout << "\nSelect a task to mark complete:\n";
-        for (size_t i = 0; i < tasks.size(); i++) {
-            cout << i + 1 << ". ";
-            tasks[i]->display();
-            cout << endl;
-        }
-
-        int taskChoice;
-        cin >> taskChoice;
-        cin.ignore();
-
-        if (taskChoice < 1 || taskChoice > (int)tasks.size()) {
-            cout << "Invalid task selection.\n";
-            return;
-        }
-
-        tasks[taskChoice - 1]->markComplete();
-        cout << "Task marked as complete.\n";
+    const int courseChoice = promptInt("Enter your choice: ");
+    if (courseChoice < 1 || courseChoice > student.getCourseCount()) {
+        cout << "Invalid course selection.\n";
+        return;
     }
 
-    void saveToFile() const {
-        ofstream outFile("study_data.txt");
+    string title;
+    cout << "Enter task title: ";
+    getline(cin, title);
+    const Date deadline = promptDate();
 
-        if (!outFile) {
-            cout << "Error opening file for saving.\n";
-            return;
+    cout << "\nChoose the type of task you want to add:\n";
+    cout << "1. Assignment\n";
+    cout << "2. Exam\n";
+    const int typeChoice = promptInt("Enter 1 for Assignment or 2 for Exam: ");
+
+    bool added = false;
+    if (typeChoice == 1) {
+        string submissionType;
+        cout << "Enter submission type (example: Online, In person, Paper): ";
+        getline(cin, submissionType);
+        AssignmentTask task(title, deadline, submissionType);
+        added = courses[courseChoice - 1].addTask(task);
+    } else if (typeChoice == 2) {
+        const int studyHours = promptInt("Enter estimated study hours required: ");
+        ExamTask task(title, deadline, studyHours);
+        added = courses[courseChoice - 1].addTask(task);
+    } else {
+        cout << "Invalid task type. Please enter 1 for Assignment or 2 for Exam.\n";
+        return;
+    }
+
+    if (added) {
+        cout << "Task added successfully.\n";
+    } else {
+        cout << "This course already has the maximum of "
+             << Course::MAX_TASKS << " tasks.\n";
+    }
+}
+
+void StudentManager::displayAllStudents() const {
+    if (studentCount == 0) {
+        cout << "No students available.\n";
+        return;
+    }
+
+    for (int i = 0; i < studentCount; ++i) {
+        cout << "\nStudent: " << students[i].getStudentName()
+             << " (ID: " << students[i].getStudentID() << ")\n";
+
+        const Course* courses = students[i].getCourses();
+        if (students[i].getCourseCount() == 0) {
+            cout << "  No courses added.\n";
+            continue;
         }
 
-        outFile << student.getName() << endl;
-        outFile << student.getStudentID() << endl;
+        for (int j = 0; j < students[i].getCourseCount(); ++j) {
+            courses[j].displayTasks();
+        }
+    }
+}
 
-        const vector<Course>& courses = student.getCourses();
-        outFile << courses.size() << endl;
+void StudentManager::markTaskComplete() {
+    const int studentIndex = promptStudentIndex();
+    if (studentIndex == -1) {
+        return;
+    }
 
-        for (size_t i = 0; i < courses.size(); i++) {
-            outFile << courses[i].getCourseName() << endl;
+    Student& student = students[studentIndex];
+    if (student.getCourseCount() == 0) {
+        cout << "No courses available.\n";
+        return;
+    }
 
-            const vector<Task*>& tasks = courses[i].getTasks();
-            outFile << tasks.size() << endl;
+    Course* courses = student.getCourses();
+    cout << "\nSelect a course:\n";
+    for (int i = 0; i < student.getCourseCount(); ++i) {
+        cout << i + 1 << ". " << courses[i].getCourseName() << '\n';
+    }
 
-            for (size_t j = 0; j < tasks.size(); j++) {
-                tasks[j]->save(outFile);
+    const int courseChoice = promptInt("Enter your choice: ");
+    if (courseChoice < 1 || courseChoice > student.getCourseCount()) {
+        cout << "Invalid course selection.\n";
+        return;
+    }
+
+    Task** tasks = courses[courseChoice - 1].getTasks();
+    const int taskCount = courses[courseChoice - 1].getTaskCount();
+    if (taskCount == 0) {
+        cout << "No tasks in this course.\n";
+        return;
+    }
+
+    cout << "\nSelect a task to mark complete:\n";
+    for (int i = 0; i < taskCount; ++i) {
+        cout << i + 1 << ". ";
+        tasks[i]->display();
+        cout << '\n';
+    }
+
+    const int taskChoice = promptInt("Enter your choice: ");
+    if (taskChoice < 1 || taskChoice > taskCount) {
+        cout << "Invalid task selection.\n";
+        return;
+    }
+
+    tasks[taskChoice - 1]->markComplete();
+    cout << "Task marked as complete.\n";
+}
+
+void StudentManager::showProgressForStudent() const {
+    const int studentIndex = promptStudentIndex();
+    if (studentIndex == -1) {
+        return;
+    }
+
+    ProgressTracker::show(students[studentIndex]);
+}
+
+void StudentManager::saveToFile() const {
+    ofstream outFile("study_data.txt");
+    if (!outFile) {
+        cout << "Error opening file for saving.\n";
+        return;
+    }
+
+    outFile << studentCount << '\n';
+    for (int i = 0; i < studentCount; ++i) {
+        outFile << students[i].getStudentName() << '\n';
+        outFile << students[i].getStudentID() << '\n';
+        outFile << students[i].getCourseCount() << '\n';
+
+        const Course* courses = students[i].getCourses();
+        for (int j = 0; j < students[i].getCourseCount(); ++j) {
+            outFile << courses[j].getCourseName() << '\n';
+            outFile << courses[j].getCourseCode() << '\n';
+            outFile << courses[j].getTaskCount() << '\n';
+
+            Task* const* tasks = courses[j].getTasks();
+            for (int k = 0; k < courses[j].getTaskCount(); ++k) {
+                tasks[k]->save(outFile);
             }
         }
-
-        outFile.close();
-        cout << "Data saved successfully.\n";
     }
 
-    void loadFromFile() {
-        ifstream inFile("study_data.txt");
+    cout << "Data saved successfully.\n";
+}
 
-        if (!inFile) {
-            cout << "No saved file found.\n";
-            return;
-        }
+void StudentManager::loadFromFile() {
+    ifstream inFile("study_data.txt");
+    if (!inFile) {
+        cout << "No saved file found.\n";
+        return;
+    }
 
-        string name, id;
-        getline(inFile, name);
-        getline(inFile, id);
+    int loadedStudentCount = 0;
+    inFile >> loadedStudentCount;
+    inFile.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        student = Student(name, id);
-
+    studentCount = 0;
+    for (int i = 0; i < loadedStudentCount && i < MAX_STUDENTS; ++i) {
+        string studentName;
+        int studentID;
         int courseCount;
+
+        getline(inFile, studentName);
+        inFile >> studentID;
         inFile >> courseCount;
-        inFile.ignore();
+        inFile.ignore(numeric_limits<streamsize>::max(), '\n');
 
-        for (int i = 0; i < courseCount; i++) {
+        Student loadedStudent(studentName, studentID);
+
+        for (int j = 0; j < courseCount && j < Student::MAX_COURSES; ++j) {
             string courseName;
-            getline(inFile, courseName);
-
-            Course course(courseName);
-
+            string courseCode;
             int taskCount;
-            inFile >> taskCount;
-            inFile.ignore();
 
-            for (int j = 0; j < taskCount; j++) {
-                string type, title;
-                Date deadline;
+            getline(inFile, courseName);
+            getline(inFile, courseCode);
+            inFile >> taskCount;
+            inFile.ignore(numeric_limits<streamsize>::max(), '\n');
+
+            Course loadedCourse(courseName, courseCode);
+
+            for (int k = 0; k < taskCount && k < Course::MAX_TASKS; ++k) {
+                string type;
+                string title;
+                Date deadline{};
                 bool completed;
 
                 getline(inFile, type);
                 getline(inFile, title);
                 inFile >> deadline.day >> deadline.month >> deadline.year;
                 inFile >> completed;
-                inFile.ignore();
+                inFile.ignore(numeric_limits<streamsize>::max(), '\n');
 
                 if (type == "Assignment") {
                     string submissionType;
                     getline(inFile, submissionType);
-                    Task* task = new AssignmentTask(title, deadline, submissionType, completed);
-                    course.addTask(task);
-                }
-                else if (type == "Exam") {
+                    AssignmentTask task(title, deadline, submissionType, completed);
+                    loadedCourse.addTask(task);
+                } else if (type == "Exam") {
                     int studyHours;
                     inFile >> studyHours;
-                    inFile.ignore();
-                    Task* task = new ExamTask(title, deadline, studyHours, completed);
-                    course.addTask(task);
-                }
-                else {
-                    Task* task = new Task(title, deadline, completed);
-                    course.addTask(task);
+                    inFile.ignore(numeric_limits<streamsize>::max(), '\n');
+                    ExamTask task(title, deadline, studyHours, completed);
+                    loadedCourse.addTask(task);
+                } else {
+                    Task task(title, deadline, completed);
+                    loadedCourse.addTask(task);
                 }
             }
 
-            student.addCourse(course);
+            loadedStudent.addCourse(loadedCourse);
         }
 
-        inFile.close();
-        cout << "Data loaded successfully.\n";
+        students[studentCount++] = loadedStudent;
     }
 
-    void showProgress() const {
-        ProgressTracker::calculateProgress(student);
-    }
+    cout << "Data loaded successfully.\n";
+}
 
-    void menu() {
-        int choice;
+void StudentManager::menu() {
+    int choice;
 
-        do {
-            cout << "\n========== StudyAssist Menu ==========\n";
-            cout << "1. Set up student\n";
-            cout << "2. Add course\n";
-            cout << "3. Add task\n";
-            cout << "4. Display courses and tasks\n";
-            cout << "5. Mark task as complete\n";
-            cout << "6. Show progress\n";
-            cout << "7. Save to file\n";
-            cout << "8. Load from file\n";
-            cout << "9. Exit\n";
-            cout << "Enter your choice: ";
-            cin >> choice;
-            cin.ignore();
+    do {
+        cout << "\n========== Student Management Menu ==========\n";
+        cout << "1. Add student\n";
+        cout << "2. Add course to student\n";
+        cout << "3. Add task to course\n";
+        cout << "4. Display all students, courses, and tasks\n";
+        cout << "5. Mark task as complete\n";
+        cout << "6. Show student progress\n";
+        cout << "7. Save to file\n";
+        cout << "8. Load from file\n";
+        cout << "9. Exit\n";
 
-            switch (choice) {
-                case 1:
-                    setupStudent();
-                    break;
-                case 2:
-                    addCourse();
-                    break;
-                case 3:
-                    addTask();
-                    break;
-                case 4:
-                    displayAllCoursesAndTasks();
-                    break;
-                case 5:
-                    markTaskComplete();
-                    break;
-                case 6:
-                    showProgress();
-                    break;
-                case 7:
-                    saveToFile();
-                    break;
-                case 8:
-                    loadFromFile();
-                    break;
-                case 9:
-                    cout << "Exiting program...\n";
-                    break;
-                default:
-                    cout << "Invalid choice. Try again.\n";
-            }
-
-        } while (choice != 9);
-    }
-};
+        choice = promptInt("Enter your choice: ");
+        switch (choice) {
+            case 1:
+                addStudent();
+                break;
+            case 2:
+                addCourseToStudent();
+                break;
+            case 3:
+                addTaskToCourse();
+                break;
+            case 4:
+                displayAllStudents();
+                break;
+            case 5:
+                markTaskComplete();
+                break;
+            case 6:
+                showProgressForStudent();
+                break;
+            case 7:
+                saveToFile();
+                break;
+            case 8:
+                loadFromFile();
+                break;
+            case 9:
+                cout << "Exiting program...\n";
+                break;
+            default:
+                cout << "Invalid choice. Try again.\n";
+                break;
+        }
+    } while (choice != 9);
+}

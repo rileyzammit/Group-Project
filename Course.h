@@ -6,6 +6,7 @@
 
 using namespace std;
 
+// Stores a course and the tasks that belong to it.
 class Course {
 public:
     static const int MAX_TASKS = 10;
@@ -16,6 +17,7 @@ private:
     Task* tasks[MAX_TASKS];
     int taskCount;
 
+    // These keep the dynamic task list safe when copying or destroying a course.
     void clearTasks();
     void copyFrom(const Course& other);
 
