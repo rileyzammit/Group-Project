@@ -24,6 +24,22 @@ int StudentManager::promptInt(const string& prompt) {
     }
 }
 
+double StudentManager::promptDouble(const string& prompt) {
+    double value;
+
+    while (true) {
+        cout << prompt;
+        if (cin >> value) {
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            return value;
+        }
+
+        cout << "Please enter a valid number.\n";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+}
+
 Date StudentManager::promptDate() {
     Date deadline{};
     deadline.day = promptInt("Enter deadline day: ");
@@ -131,10 +147,14 @@ void StudentManager::addTaskToCourse() {
         cout << "Enter submission type (example: Online, In person, Paper): ";
         getline(cin, submissionType);
         AssignmentTask task(title, deadline, submissionType);
+        double weight = promptDouble("Enter percentage weight for this task: ");
+        task.setWeight(weight);
         added = courses[courseChoice - 1].addTask(task);
     } else if (typeChoice == 2) {
         const int studyHours = promptInt("Enter estimated study hours required: ");
         ExamTask task(title, deadline, studyHours);
+        double weight = promptDouble("Enter percentage weight for this task: ");
+        task.setWeight(weight);
         added = courses[courseChoice - 1].addTask(task);
     } else {
         cout << "Invalid task type. Please enter 1 for Assignment or 2 for Exam.\n";
@@ -216,6 +236,8 @@ void StudentManager::markTaskComplete() {
     }
 
     tasks[taskChoice - 1]->markComplete();
+    double grade = promptDouble("Enter grade for this task: ");
+    tasks[taskChoice - 1]->setGrade(grade);
     cout << "Task marked as complete.\n";
 }
 

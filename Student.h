@@ -4,7 +4,6 @@
 
 #include <string>
 
-using namespace std;
 
 // The class is for each student, which includes their name, ID, and their courses
 class Student {
