@@ -6,15 +6,14 @@
 
 using namespace std;
 
-// This class represents one student in the program.
-// It stores the student's name, ID, and the courses that belong to them.
+// The class is for each student, which includes their name, ID, and their courses
 class Student {
 public:
-    // Each student can store up to 6 courses.
+    // Each student can store up to 6 courses
     static const int MAX_COURSES = 6;
 
 private:
-    // Basic student info.
+    // Basic student info
     string studentName;
     int studentID;
 
@@ -25,28 +24,27 @@ private:
     int courseCount;
 
 public:
-    // Default constructor.
+    // Default constructor
     Student();
 
-    // Constructor that creates a student with a name and ID.
+    // Overloaded constructor that creates a student with a name and ID
     Student(const string& nameArg, int idArg);
 
-    // Setters for changing student info.
+    // Setters for changing student info
     void setStudentName(const string& nameArg);
     void setStudentID(int idArg);
 
-    // Getters for reading student info.
+    // Getters for reading student info
     const string& getStudentName() const;
     int getStudentID() const;
 
-    // Adds a course to the student's course list.
-    // Returns false if the student already has the maximum number of courses.
+    // Adds a course to the student's course list, returns false if already at max courses
     bool addCourse(const Course& courseArg);
 
-    // Returns how many courses this student currently has.
+    // Returns how many courses this student has
     int getCourseCount() const;
 
-    // Gives access to the course array so other parts of the program can use it.
+    // Returns course array so other functions can use it/read info
     Course* getCourses();
     const Course* getCourses() const;
 };

@@ -4,45 +4,6 @@
 
 using namespace std;
 
-// Start with a default course and an empty task list.
-Course::Course() : courseName("Unknown Course"), courseCode("UNKN"), taskCount(0) {
-    for (int i = 0; i < MAX_TASKS; ++i) {
-        tasks[i] = nullptr;
-    }
-}
-
-// Start with a named course and an empty task list.
-Course::Course(const string& nameArg, const string& codeArg)
-    : courseName(nameArg), courseCode(codeArg), taskCount(0) {
-    for (int i = 0; i < MAX_TASKS; ++i) {
-        tasks[i] = nullptr;
-    }
-}
-
-Course::Course(const Course& other) : courseName("Unknown Course"), courseCode("UNKN"), taskCount(0) {
-    for (int i = 0; i < MAX_TASKS; ++i) {
-        tasks[i] = nullptr;
-    }
-    // Make a deep copy so each course owns its own task objects.
-    copyFrom(other);
-}
-
-Course& Course::operator=(const Course& other) {
-    if (this != &other) {
-        clearTasks();
-        courseName = "Unknown Course";
-        courseCode = "UNKN";
-        taskCount = 0;
-        copyFrom(other);
-    }
-    return *this;
-}
-
-Course::~Course() {
-    // Free any tasks that were created on the heap.
-    clearTasks();
-}
-
 void Course::clearTasks() {
     // Delete only the tasks that are actually being used.
     for (int i = 0; i < taskCount; ++i) {
@@ -72,6 +33,55 @@ void Course::copyFrom(const Course& other) {
 
     taskCount = other.taskCount;
 }
+
+// Start with a default course and an empty task list.
+Course::Course() {
+    courseName = "Unknown Course";
+    courseCode = "UNKN";
+    taskCount = 0;
+    for (int i = 0; i < MAX_TASKS; ++i) {
+        tasks[i] = nullptr;
+    }
+}
+
+// Start with a named course and an empty task list.
+Course::Course(const string& nameArg, const string& codeArg) {
+    courseName = nameArg;
+    courseCode = codeArg;
+    taskCount = 0;
+    for (int i = 0; i < MAX_TASKS; ++i) {
+        tasks[i] = nullptr;
+    }
+}
+
+Course::Course(const Course& other) {
+    courseName = "Unknown Course";
+    courseCode = "UNKN";
+    taskCount = 0;
+    for (int i = 0; i < MAX_TASKS; ++i) {
+        tasks[i] = nullptr;
+    }
+    // Make a deep copy so each course owns its own task objects.
+    copyFrom(other);
+}
+
+Course& Course::operator=(const Course& other) {
+    if (this != &other) {
+        clearTasks();
+        courseName = "Unknown Course";
+        courseCode = "UNKN";
+        taskCount = 0;
+        copyFrom(other);
+    }
+    return *this;
+}
+
+Course::~Course() {
+    // Free any tasks that were created on the heap.
+    clearTasks();
+}
+
+
 
 const string& Course::getCourseName() const {
     return courseName;

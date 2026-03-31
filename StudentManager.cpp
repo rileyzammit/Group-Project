@@ -225,7 +225,7 @@ void StudentManager::showProgressForStudent() const {
         return;
     }
 
-    ProgressTracker::show(students[studentIndex]);
+    ProgressTracker::show(students[studentIndex], students, studentCount);
 }
 
 void StudentManager::saveToFile() const {

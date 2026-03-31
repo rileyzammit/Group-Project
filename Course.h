@@ -8,9 +8,8 @@ using namespace std;
 
 // Stores a course and the tasks that belong to it.
 class Course {
-public:
+public:  
     static const int MAX_TASKS = 10;
-
 private:
     string courseName;
     string courseCode;
@@ -22,6 +21,7 @@ private:
     void copyFrom(const Course& other);
 
 public:
+   
     Course();
     Course(const string& nameArg, const string& codeArg);
     Course(const Course& other);
