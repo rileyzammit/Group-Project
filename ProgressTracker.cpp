@@ -4,7 +4,7 @@
 
 using namespace std;
 
-// Add up the weights for tasks that are actually being counted in the grade.
+// Add up weights for tasks being counted toward grade
 double ProgressTracker::calculateRecordedWeight(const Course& course) {
     double totalWeight = 0.0;
     Task* const* tasks = course.getTasks();
@@ -18,12 +18,12 @@ double ProgressTracker::calculateRecordedWeight(const Course& course) {
     return totalWeight;
 }
 
-// Check whether the course has enough grade data to calculate an average.
+// Check if course has enough data to calculate avg (more than 1 graded task w weight >0)
 bool ProgressTracker::courseHasGradeData(const Course& course) {
     return calculateRecordedWeight(course) > 0.0;
 }
 
-// Calculate the current weighted grade for one course.
+// Calculate the current weighted grade for course in arg
 double ProgressTracker::calculateCourseAverage(const Course& course) {
     double weightedTotal = 0.0;
     double totalWeight = 0.0;
@@ -43,7 +43,7 @@ double ProgressTracker::calculateCourseAverage(const Course& course) {
     return weightedTotal / totalWeight;
 }
 
-// Check whether a student has at least one course with grade data.
+// Checks if student has at least one course with grade data
 bool ProgressTracker::studentHasGradeData(const Student& student) {
     const Course* courses = student.getCourses();
 
@@ -56,7 +56,7 @@ bool ProgressTracker::studentHasGradeData(const Student& student) {
     return false;
 }
 
-// Average together the student's course averages.
+// Average together one student's course averages
 double ProgressTracker::calculateStudentAverage(const Student& student) {
     const Course* courses = student.getCourses();
     double totalAverage = 0.0;
@@ -76,7 +76,7 @@ double ProgressTracker::calculateStudentAverage(const Student& student) {
     return totalAverage / gradedCourses;
 }
 
-// Average together each student's overall average.
+// Average together each student's overall average
 double ProgressTracker::calculateAllStudentsAverage(const Student students[], int studentCount) {
     double totalAverage = 0.0;
     int gradedStudents = 0;
@@ -96,7 +96,7 @@ double ProgressTracker::calculateAllStudentsAverage(const Student students[], in
 }
 
 // Show completion stats, course grades, the student's overall average,
-// and the average across all students that currently have grade data.
+// and the average across all students that currently have grade data
 void ProgressTracker::show(const Student& student, const Student students[], int studentCount) {
     int totalTasks = 0;
     int completedTasks = 0;
